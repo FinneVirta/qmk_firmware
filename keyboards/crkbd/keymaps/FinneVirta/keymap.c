@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Defines the keycodes used by our macros in process_record_user
 enum custom_keycodes {
   SELLINE = SAFE_RANGE,
-  BACKLIT,
+  OLED,
   SRCHSEL,
   WEMAIL,
   PEMAIL,
@@ -72,11 +72,11 @@ LT(_NUM,KC_TAB), KC_A, KC_S,   KC_D,    KC_F,    KC_G,                         K
 
   [_SYMBOL] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      _______, SE_QUOT, SE_LABK, SE_RABK, SE_DQUO, KC_DOT,                      SE_AMPR, SE_SCLN, SE_LBRC, SE_RBRC, SE_PERC, _______,
+      WEMAIL, SE_QUOT, SE_LABK, SE_RABK, SE_DQUO, KC_DOT,                      SE_AMPR, SE_SCLN, SE_LBRC, SE_RBRC, SE_PERC, _______,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, SE_EXLM, KC_SLSH, SE_PLUS, SE_EQL, SE_HASH,                      SE_PIPE, SE_COLN, SE_LPRN, SE_RPRN, SE_QUES, _______, 
+      PEMAIL, SE_EXLM, KC_SLSH, SE_PLUS, SE_EQL, SE_HASH,                      SE_PIPE, SE_COLN, SE_LPRN, SE_RPRN, SE_QUES, _______, 
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, SE_CIRC, SE_SLSH, SE_ASTR, SE_BSLS, _______,                     SE_TILD, SE_DLR,  SE_LCBR, SE_RCBR, SE_AT,   KC_DEL,
+      SRCHSEL, SE_CIRC, SE_SLSH, SE_ASTR, SE_BSLS, _______,                     SE_TILD, SE_DLR,  SE_LCBR, SE_RCBR, SE_AT,   KC_DEL,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______,  _______,     KC_ENT,   MO(_NUM), CTLALT
                                       //`--------------------------'  `--------------------------'
@@ -96,11 +96,11 @@ LT(_NUM,KC_TAB), KC_A, KC_S,   KC_D,    KC_F,    KC_G,                         K
 
   [_NUM] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      QK_BOOT, CG_TOGG, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      QK_BOOT, KC_7,    KC_8,    KC_9,    SE_ASTR, XXXXXXX,
+      QK_BOOT, RGB_MOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, KC_7,    KC_8,    KC_9,    SE_ASTR, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, KC_4,    KC_5,    KC_6,    SE_PLUS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      KC_0,    KC_1,    KC_2,    KC_3,    SE_EQL,  XXXXXXX,
+      CG_TOGG, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      KC_0,    KC_1,    KC_2,    KC_3,    SE_EQL,  QK_BOOT,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______,  _______,     _______, _______, KC_0
                                       //`--------------------------'  `--------------------------'
@@ -108,47 +108,6 @@ LT(_NUM,KC_TAB), KC_A, KC_S,   KC_D,    KC_F,    KC_G,                         K
 };
 
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case BACKLIT:
-      if (record->event.pressed) {
-        register_code(KC_RSFT);
-        #ifdef BACKLIGHT_ENABLE
-          backlight_step();
-        #endif
-        #ifdef KEYBOARD_planck_rev5
-          writePinLow(E6);
-        #endif
-      } else {
-        unregister_code(KC_RSFT);
-        #ifdef KEYBOARD_planck_rev5
-          writePinHigh(E6);
-        #endif
-      }
-      return false;
-    case SELLINE:  // Selects the current line.
-      if (record->event.pressed) {
-        SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)));
-      }
-      return false;
-    case WEMAIL:  // Enters work email.
-      if (record->event.pressed) {
-        SEND_STRING("daniel.virta@anticimex.se");
-      }
-      return false;
-    case PEMAIL:  // Enters personal email.
-      if (record->event.pressed) {
-        SEND_STRING("daniel.virta@outlook.com");
-      }
-      return false;
-    case SRCHSEL:  // Searches the current selection in a new tab.
-      if (record->event.pressed) {
-        SEND_STRING(SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER));
-      }
-      return false;
-  }
-  return true;
-}
 
 
 #ifdef OLED_ENABLE
@@ -248,10 +207,37 @@ bool oled_task_user(void) {
     return false;
 }
 
+#endif // OLED_ENABLE
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (record->event.pressed) {
-    set_keylog(keycode, record);
+  switch (keycode) {
+    case OLED:
+      if (record->event.pressed) {
+        #ifdef OLED_ENABLE
+          set_keylog(keycode, record);
+        #endif
+      }
+      return false;
+    case SELLINE:  // Selects the current line.
+      if (record->event.pressed) {
+        SEND_STRING(SS_TAP(X_HOME) SS_LSFT(SS_TAP(X_END)));
+      }
+      return false;
+    case WEMAIL:  // Enters work email.
+      if (record->event.pressed) {
+        SEND_STRING("daniel.virta@anticimex.se");
+      }
+      return false;
+    case PEMAIL:  // Enters personal email.
+      if (record->event.pressed) {
+        SEND_STRING("daniel.virta@outlook.com");
+      }
+      return false;
+    case SRCHSEL:  // Searches the current selection in a new tab.
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER));
+      }
+      return false;
   }
   return true;
 }
-#endif // OLED_ENABLE

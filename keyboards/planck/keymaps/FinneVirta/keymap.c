@@ -62,7 +62,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [_SYMBOL] = LAYOUT_planck_grid(
-    WEMAIL, SE_QUOT, SE_LABK, SE_RABK, KC_DLR, SE_DQUO,    KC_DOT, SE_AMPR, SE_SCLN, SE_LBRC, SE_RBRC, SE_PERC,
+    WEMAIL, SE_QUOT, SE_LABK, SE_RABK, SE_DQUO, KC_DOT,    SE_AMPR, SE_SCLN, SE_LBRC, SE_RBRC, SE_PERC, _______,
     PEMAIL, SE_EXLM, KC_SLSH, SE_PLUS, SE_EQL, SE_HASH,    SE_PIPE, SE_COLN, SE_LPRN, SE_RPRN, SE_QUES, KC_DEL, 
     SRCHSEL, SE_CIRC, SE_SLSH, SE_ASTR, SE_BSLS, _______,   SE_TILD, SE_DLR,  SE_LCBR, SE_RCBR, SE_AT,   _______,
     TOGGLE_LAYER_COLOR, _______, _______, _______, _______, _______,   _______, _______, _______, _______, _______, _______
@@ -76,10 +76,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [_NUM] = LAYOUT_planck_grid(
-    QK_BOOT, CG_TOGG, _______, _______, _______, _______,   QK_BOOT, KC_7,    KC_8,    KC_9,    SE_ASTR, _______,
+    QK_BOOT, _______, _______, _______, _______, _______,   QK_BOOT, KC_7,    KC_8,    KC_9,    SE_ASTR, _______,
     _______, _______, _______, _______, _______, _______,   _______, KC_4,    KC_5,    KC_6,    SE_PLUS, _______,
     _______, _______, _______, _______, _______, _______,   KC_0,    KC_1,    KC_2,    KC_3,    SE_EQL,  _______,
-    _______, _______, _______, _______, _______, _______,   _______, KC_0, _______, _______, _______, _______
+    CG_TOGG, _______, _______, _______, _______, _______,   _______, KC_0, KC_COMM, KC_DOT, _______, _______
 )
 
 };

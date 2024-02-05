@@ -1,4 +1,7 @@
 #pragma once
+#ifdef TAPPING_TERM
+    #undef TAPPING_TERM
+#endif
 #define TAPPING_TERM 150
 
 /* The way how "handedness" is decided (which half is which),
