@@ -38,13 +38,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DLINE LCTL(KC_BSPC)
 #define CTLALT LCTL(KC_LALT)
 
+//Used for Super ALT+TAB https://docs.qmk.fm/feature_macros#super-alt%e2%86%aftab
+bool is_alt_tab_active = false; 
+uint16_t alt_tab_timer = 0;     
+
 // Defines the keycodes used by our macros in process_record_user
 enum custom_keycodes {
   SELLINE = SAFE_RANGE,
   OLED,
-  SRCHSEL,
   WEMAIL,
   PEMAIL,
+  ALT_TAB = SAFE_RANGE,
 };
 
 
@@ -73,11 +77,11 @@ MT(MOD_LGUI,KC_LSFT),   KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,               
 
   [_SYMBOL] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      WEMAIL, SE_QUOT, SE_LABK, SE_RABK, SE_DQUO, KC_DOT,                      SE_AMPR, SE_SCLN, SE_LBRC, SE_RBRC, SE_PERC, _______,
+      ALT_TAB, SE_QUOT, SE_LABK, SE_RABK, SE_DQUO, KC_DOT,                      SE_AMPR, SE_SCLN, SE_LBRC, SE_RBRC, SE_PERC, _______,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      PEMAIL, SE_EXLM, KC_SLSH, SE_PLUS, SE_EQL, SE_HASH,                      SE_PIPE, SE_COLN, SE_LPRN, SE_RPRN, SE_QUES, _______, 
+      WEMAIL, SE_EXLM, KC_SLSH, SE_PLUS, SE_EQL, SE_HASH,                      SE_PIPE, SE_COLN, SE_LPRN, SE_RPRN, SE_QUES, _______, 
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      SRCHSEL, SE_CIRC, SE_SLSH, SE_ASTR, SE_BSLS, _______,                     SE_TILD, SE_DLR,  SE_LCBR, SE_RCBR, SE_AT,   KC_DEL,
+      PEMAIL, SE_CIRC, SE_SLSH, SE_ASTR, SE_BSLS, _______,                     SE_TILD, SE_DLR,  SE_LCBR, SE_RCBR, SE_AT,   KC_DEL,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______,  _______,     KC_ENT,   MO(_NUM), CTLALT
                                       //`--------------------------'  `--------------------------'
@@ -246,11 +250,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         SEND_STRING("daniel.virta@outlook.com");
       }
       return false;
-    case SRCHSEL:  // Searches the current selection in a new tab.
+    case ALT_TAB:
       if (record->event.pressed) {
-        SEND_STRING(SS_LCTL("ct") SS_DELAY(100) SS_LCTL("v") SS_TAP(X_ENTER));
+        if (!is_alt_tab_active) {
+          is_alt_tab_active = true;
+          register_code(KC_LALT);
+        }
+        alt_tab_timer = timer_read();
+        register_code(KC_TAB);
+      } else {
+        unregister_code(KC_TAB);
       }
-      return false;
+      break;
   }
   return true;
+}
+
+void matrix_scan_user(void) {
+  if (is_alt_tab_active) {
+    if (timer_elapsed(alt_tab_timer) > 1000) {
+      unregister_code(KC_LALT);
+      is_alt_tab_active = false;
+    }
+  }
 }
